@@ -29,3 +29,8 @@ app.get('/merge', (req, res) => {
 });
 
 app.listen(3000);
+
+// New route (intentionally vulnerable again for the pull request check)
+app.get('/greet', (req, res) => {
+  res.send('<p>Welcome, ' + req.query.user + '</p>');
+});
