@@ -1,0 +1,11 @@
+{
+  "name": "sec-scan-demo",
+  "version": "1.0.0",
+  "description": "Demo for dependency, code and secret scanning (intentionally vulnerable).",
+  "main": "app.js",
+  "private": true,
+  "dependencies": {
+    "express": "4.21.2",
+    "lodash": "4.17.15"
+  }
+}
