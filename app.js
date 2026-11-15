@@ -1,18 +1,25 @@
-// Intentionally vulnerable sample for code scanning. Do not deploy.
+// Sample for code scanning (fixed version).
 const express = require('express');
-const { exec } = require('child_process');
+const { execFile } = require('child_process');
+const rateLimit = require('express-rate-limit');
 const _ = require('lodash');
 
 const app = express();
+app.use(rateLimit({ windowMs: 60 * 1000, limit: 60 }));
 
-// Reflected XSS: user input is written into HTML without encoding
+const escapeHtml = (s) =>
+  String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+// Fixed: encode user input before writing it into HTML
 app.get('/hello', (req, res) => {
-  res.send('<h1>Hello ' + req.query.name + '</h1>');
+  res.send('<h1>Hello ' + escapeHtml(req.query.name) + '</h1>');
 });
 
-// Command injection: user input is passed to a shell command
+// Fixed: no shell, and only allow-listed directories
+const allowedDirs = ['public', 'logs'];
 app.get('/list', (req, res) => {
-  exec('ls ' + req.query.dir, (err, stdout) => {
+  const dir = allowedDirs.includes(req.query.dir) ? req.query.dir : 'public';
+  execFile('ls', ['--', dir], (err, stdout) => {
     res.type('text/plain').send(err ? 'error' : stdout);
   });
 });
